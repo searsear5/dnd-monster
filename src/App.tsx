@@ -17,7 +17,7 @@ function App() {
       path: "/detail/:index",
       element: <DetailPage />,
     },
-  ]);
+  ], { basename: import.meta.env.DEV ? '/' : '/dnd-monsters-search/' });
 
   return (
     <div className='bg-[url("/image/back1.jpg")] min-h-[100vh] w-full '>
