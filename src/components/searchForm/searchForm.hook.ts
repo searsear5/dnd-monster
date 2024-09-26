@@ -1,0 +1,144 @@
+import { useEffect } from 'react'
+import { dndListServices, dndDetailServices } from '@/services'
+import { useForm } from 'react-hook-form'
+import { useDndListStore } from '@/store/dndList'
+import { IdndDetailResponse } from '@/interface/dndDetail'
+
+
+const useSearchForm = () => {
+
+    const {
+        register,
+        watch,
+    } = useForm();
+
+    const { setfetchDndList, fetchDnd, setDndList, setBatchSuccess } = useDndListStore()
+
+    const keyword = watch("keyword")
+    const type = watch("type")
+    const size = watch("size")
+
+    const callData = async () => {
+        setfetchDndList({
+            data: [],
+            loading: true,
+            isBatchSuccess: false,
+            error: null,
+        });
+        
+        const responseList = await dndListServices.getdndList();
+        
+        if (responseList.status === 200) {
+            const responseResults = responseList.data?.results || [];
+            const batchSize = 10;
+            const totalBatches = Math.ceil(responseResults.length / batchSize);
+            console.log("start batch")
+            
+            for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+                console.log("each batch", batchIndex)
+
+                const batchResults = responseResults.slice(batchIndex * batchSize, (batchIndex + 1) * batchSize);
+                const promiseList = [];
+                const dndList = [];
+                
+                for (const dnd of batchResults) {
+                    promiseList.push(dndDetailServices.getdndDetail(dnd.index));
+                }
+                
+                // ดึงข้อมูลแบบ batch
+                console.log("batchResults", batchIndex, batchResults)
+                console.log("promiseList", batchIndex, promiseList)
+                const detailList = await Promise.all(promiseList);
+                console.log("detailList", batchIndex, detailList)
+
+                for (const response of detailList) {
+                    const dndData = response.data;
+                    
+                    if (dndData) {
+                        if (dndData.image) {
+                            dndList.push({
+                                ...dndData,
+                                image: `https://www.dnd5eapi.co${dndData.image}`,
+                            });
+                        } else {
+                            dndList.push({
+                                ...dndData,
+                                image: `/image/unknow.webp`,
+                            });
+                        }
+                    }
+                }
+                
+                // ทำการอัปเดตข้อมูลหลังจากเรียกข้อมูลแต่ละ batch เสร็จ
+                setfetchDndList({
+                    data: dndList,
+                    loading: false, // loading จะแสดง false เมื่อ batch สุดท้ายเสร็จ
+                    error: null,
+                    isBatchSuccess: false,
+                });
+                setDndList({
+                    data: dndList,
+                    loading: false,
+                    error: null,
+                    isBatchSuccess: false,
+                });
+            }
+            setBatchSuccess(true);
+        } else {
+            setfetchDndList({
+                data: [],
+                loading: false,
+                error: responseList.error,
+                isBatchSuccess: false,
+            });
+        }
+    };
+    
+
+    const filterdnd = (
+        dndList: IdndDetailResponse[],
+        keyword: string,
+        type: string,
+        size: string,
+    ) => {
+        const keywordFilter = dndList.filter((item) => item.name.includes(keyword))
+        const typeFilter = type !== "all types" ? keywordFilter.filter((item) => item.type.includes(type)) : keywordFilter
+        const sizeFilter = size !== "all size" ? typeFilter.filter((item) => item.size.includes(size)) : typeFilter
+        return sizeFilter
+    }
+
+    useEffect(() => {
+
+
+        callData()
+
+    }, [])
+    useEffect(() => {
+        const data = fetchDnd.data.filter((item) => item.name.includes(keyword))
+        setDndList({
+            data: data,
+            loading: false,
+            error: null,
+        });
+
+    }, [keyword])
+
+    useEffect(() => {
+        const data = filterdnd(fetchDnd.data, keyword, type, size)
+        setDndList({
+            data: data,
+            loading: false,
+            error: null,
+        });
+
+    }, [keyword, type, size])
+
+
+    return {
+        fieldKeyword: register("keyword"),
+        fieldtype: register("type"),
+        fieldsize: register("size"),
+    }
+}
+
+export { useSearchForm }

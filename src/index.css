@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/*
+.badge-type {
+    &plant {
+        background-color: #a8ff98;
+    }
+
+    &undead {
+        background-color: #8e8c94;
+    }
+
+    &celestial {
+        background-color: #ffa5da;
+    }
+
+    &giant {
+        background-color: #e69a74;
+    }
+
+    &tags {
+        background-color: #fdb9e9;
+    }
+
+    &dragon {
+        background-color: #88a2e8;
+    }
+
+    &humanoid {
+        background-color: #dcdcdc;
+    }
+
+    &beast {
+        background-color: #ffe662;
+    }
+
+    &construct {
+        background-color: #9fb8b9;
+    }
+
+    &monstrosity {
+        background-color: #8cc4e2;
+    }
+
+    &fiend {
+        background-color: #d6a2e4;
+    }
+
+    &fey {
+        background-color: #bae05f;
+    }
+
+    &elemental {
+        background-color: #8cf5e4;
+    }
+
+    &ooze {
+        background-color: #bbc9e4;
+    }
+
+    &aberration {
+        background-color: #ffb971;
+    }
+}*/
