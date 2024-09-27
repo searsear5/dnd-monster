@@ -2,16 +2,15 @@ import DndCard from "@/components/dndCard";
 import SearchForm from "@/components/searchForm";
 import { useDndListStore } from "@/store/dndList";
 import { LoadingOverlay } from "@achmadk/react-loading-overlay";
+import DndImage from "/image/DnD.png"
 
 const HomePage = () => {
   const { dnd, fetchDnd } = useDndListStore();
 
-  console.log(dnd);
-
   return (
     <div className="m-[auto]">
       <div className="flex justify-between items-center">
-        <img src="./image/DnD.png" className="max-h-[120px] mt-[50px]" />
+        <img src={DndImage} className="max-h-[120px] mt-[50px]" />
         <p
           className={`font-bold text-green-500 text-lg bg-black/50 p-2 rounded-md shadow-lg ${
             fetchDnd.isBatchSuccess ? "text-green-500" : "text-yellow-500"
