@@ -11,7 +11,7 @@ const HomePage = () => {
   return (
     <div className="m-[auto]">
       <div className="flex justify-between items-center">
-        <img src="/image/DnD.png" className="max-h-[120px] mt-[50px]" />
+        <img src="./image/DnD.png" className="max-h-[120px] mt-[50px]" />
         <p
           className={`font-bold text-green-500 text-lg bg-black/50 p-2 rounded-md shadow-lg ${
             fetchDnd.isBatchSuccess ? "text-green-500" : "text-yellow-500"

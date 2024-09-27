@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { dndListServices, dndDetailServices } from '@/services'
 import { useForm } from 'react-hook-form'
 import { useDndListStore } from '@/store/dndList'
@@ -11,8 +11,8 @@ const useSearchForm = () => {
         register,
         watch,
     } = useForm();
-
-    const { setfetchDndList, fetchDnd, setDndList, setBatchSuccess } = useDndListStore()
+    const hasFetched = useRef(false); // ใช้ useRef เพื่อเก็บสถานะการโหลดข้อมูล
+    const { setfetchDndList, fetchDnd, setDndList, setBatchSuccess,clearDnd } = useDndListStore()
 
     const keyword = watch("keyword")
     const type = watch("type")
@@ -32,10 +32,8 @@ const useSearchForm = () => {
             const responseResults = responseList.data?.results || [];
             const batchSize = 10;
             const totalBatches = Math.ceil(responseResults.length / batchSize);
-            console.log("start batch")
             
             for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-                console.log("each batch", batchIndex)
 
                 const batchResults = responseResults.slice(batchIndex * batchSize, (batchIndex + 1) * batchSize);
                 const promiseList = [];
@@ -46,10 +44,7 @@ const useSearchForm = () => {
                 }
                 
                 // ดึงข้อมูลแบบ batch
-                console.log("batchResults", batchIndex, batchResults)
-                console.log("promiseList", batchIndex, promiseList)
                 const detailList = await Promise.all(promiseList);
-                console.log("detailList", batchIndex, detailList)
 
                 for (const response of detailList) {
                     const dndData = response.data;
@@ -108,11 +103,16 @@ const useSearchForm = () => {
     }
 
     useEffect(() => {
+        if (!hasFetched.current) {
+            callData();
+            hasFetched.current = true; // เปลี่ยนสถานะเป็น true เพื่อบล็อกการเรียกครั้งถัดไป
+        }
 
-
-        callData()
-
+        return () => {
+            clearDnd();
+        }
     }, [])
+
     useEffect(() => {
         const data = fetchDnd.data.filter((item) => item.name.includes(keyword))
         setDndList({
